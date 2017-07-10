@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>IO Chat</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" href="style.css"> -->
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script>
+			$(function() {
+				var socket = io();
+				$('#login_form').submit(function() {
+					var temp_name = $('#username').val();
+					if (temp_name == '') {
+						alert('Username can not be empty.');
+					} else {
+						socket.emit('new user', $('#username').val(), function(data) {
+						if (data) {
+							$('#login_section').hide();
+							$('#chat_section').show();
+						} else {
+							$('#username').val('');
+							alert('Username already exists.');
+						}
+					});
+					}
+					return false;
+				});
+
+				$('#chat_form').submit(function() {
+					socket.emit('chat message', $('#message').val());
+					$('#message').val('');
+					return false;
+				});
+
+				socket.on('get users', function(users) {
+					var html = '<ul id="users" style="list-style-type: none;">';
+					for (i = 0; i < users.length; i++) {
+						html += '<li>' + users[i] + '</li>';
+					};
+					html += '</ul>';
+					$('#userlist').html(html);
+				});
+
+				socket.on('chat message', function(data) {
+					$('#messages').append('<li><strong>' + data.user + '</strong>: ' + data.msg + '</li>');
+				});
+
+				socket.on('online message', function(data) {
+					$('#messages').append('<li>User <strong>' + data.user + '</strong> is now online.</li>');
+				});
+
+				socket.on('offline message', function(data) {
+					$('#messages').append('<li>User <strong>' + data.user + '</strong> just went offline.</li>');
+				});				
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<!-- Login Section -->
+			<dir class="row" id="login_section" style="margin-top: 200px;">
+				<div class="col-sm-8 col-sm-offset-4">
+					<form id="login_form">
+						<h3>Please enter your username</h3>
+						<input type="text" id="username">
+						<input type="submit" value="Enter">
+					</form>
+				</div>
+			</dir>
+
+			<!-- Chat Section -->
+			<div class="row" id="chat_section" style="margin-top: 30px; display: none;">
+				<div class="col-sm-9">
+					<div class="panel panel-info" id="chat_panel">
+						<div class="panel-heading"><span class="glyphicon glyphicon-comment">&nbsp</span>Chatroom</div>
+						<div class="panel-body" id="message_board" style="height: 400px; overflow-y: scroll;">
+							<ul id="messages" style="list-style-type: none;"></ul>
+						</div>
+						<div class="panel-footer" style="height: 60px;">
+						<form id="chat_form">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" id="message">
+									<span class="input-group-btn">
+										<button type="button" class="btn btn-info" id="send_message">Send</button>
+									</span>
+								</div>
+							</div>
+						</form>
+							
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="panel panel-info" id="user_panel">
+						<div class="panel-heading"><span class="glyphicon glyphicon-user">&nbsp</span>Users</div>
+						<div class="panel-body" id="userlist" style="height: 400px; overflow-y: scroll;">
+							
+						</div>
+						<div class="panel-footer" style="height: 60px;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
