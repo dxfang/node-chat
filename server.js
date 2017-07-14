@@ -67,7 +67,7 @@ io.sockets.on('connection', function (socket) {
 
     // Update the messages to get list of old messages
     function reloadOldMessages() {
-        io.emit('get messages', messages);
+        socket.emit('get messages', messages);
     };
 
     // Broadcast new user online message
