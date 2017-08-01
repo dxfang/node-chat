@@ -84,7 +84,7 @@ $(function() {
 	// Dismiss new message notification
 	document.addEventListener('visibilitychange', function() {
 			if (document.visibilityState == 'visible') {
-				document.title = 'IO Chat';
+				document.title = 'ChatColate';
 			};
 		}, false);
 
