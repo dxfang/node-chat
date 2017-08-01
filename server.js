@@ -62,6 +62,7 @@ io.sockets.on('connection', function (socket) {
 
     // Update the user list whenever a user connects or disconnects
     function updateUserList() {
+        users.sort();
         io.emit('get users', users);
     };
 

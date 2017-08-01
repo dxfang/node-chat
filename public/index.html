@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>IO Chat</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="js/client.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Login Section -->
+            <div class="row" id="login_section" style="margin-top: 30vh;">
+                <div class="col-sm-4 col-sm-offset-4 well text-center">
+                    <form id="login_form">
+                        <h3>Please enter your username</h3>
+                        <input type="text" id="username">
+                        <input type="submit" value="Enter">
+                    </form>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="row" id="chat_section" style="margin-top: 20vh; display: none;">
+                <div class="col-sm-9">
+                    <div class="panel panel-info" id="chat_panel">
+                        <div class="panel-heading"><span class="glyphicon glyphicon-comment">&nbsp</span>Chatroom</div>
+                        <div class="panel-body" id="message_board" style="height: 400px; overflow-y: scroll;">
+                            <div id="messages"></div>
+                        </div>
+                        <div class="panel-footer" style="height: 60px;">
+                            <form id="chat_form">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="message" autocomplete="off">
+                                        <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-info" id="send_message">Send</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="panel panel-info" id="user_panel">
+                        <div class="panel-heading"><span class="glyphicon glyphicon-user">&nbsp</span>Users</div>
+                        <div class="panel-body" id="userlist" style="height: 400px; overflow-y: scroll;"></div>
+                        <div class="panel-footer" style="height: 60px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
