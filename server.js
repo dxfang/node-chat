@@ -62,12 +62,13 @@ io.sockets.on('connection', function (socket) {
 
     // Update the user list whenever a user connects or disconnects
     function updateUserList() {
+        users.sort();
         io.emit('get users', users);
     };
 
     // Update the messages to get list of old messages
     function reloadOldMessages() {
-        io.emit('get messages', messages);
+        socket.emit('get messages', messages);
     };
 
     // Broadcast new user online message
