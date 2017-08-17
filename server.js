@@ -4,9 +4,9 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-connections = [];
-users = [];
-messages = [];
+var connections = [];
+var users = [];
+var chatroom = {};
 var num_messages_to_save = 50; //set to -1 for infinite
 
 app.use(express.static('public'));
@@ -20,11 +20,14 @@ io.sockets.on('connection', function (socket) {
     console.log('%s users online', connections.length);
 
     // New user
-    socket.on('new user', function (data, callback) {
+    socket.on('new user', function (data, chatroomName, callback) {
+        chatroomName = createChatroom(chatroomName);
+
         var exist = false;
         for (i = 0; i < users.length; i++) {
-            if (data == users[i]) {
+            if (data == users[i].username && chatroomName == users[i].chatroom) {
                 exist = true;
+                break;
             }
         };
 
@@ -33,20 +36,27 @@ io.sockets.on('connection', function (socket) {
         } else {
             callback(true);
             socket.username = data;
-            users.push(socket.username);
-            updateUserList();
+            socket.chatroomName = chatroomName;
+            users.push({ username: socket.username, chatroom: socket.chatroomName });
+            chatroom[chatroomName].users.push({ username: socket.username, chatroom: socket.chatroomName });
+            updateUserList(chatroomName);
             userOnline();
-            reloadOldMessages();
+            reloadOldMessages(chatroomName);
         }
 
     });
 
     // Send message
     socket.on('chat message', function (message) {
-        if (messages.length == num_messages_to_save)
-            messages.shift(); //delete oldest message
-        messages.push({ msg: message, user: socket.username });
-        io.emit('chat message', { msg: message, user: socket.username });
+        //if (messages.length == num_messages_to_save)
+        //    messages.shift(); //delete oldest message
+        //messages.push({ msg: message, user: socket.username });
+        //io.emit('chat message', { msg: message, user: socket.username });
+
+        if (chatroom[socket.chatroomName].messages.length == num_messages_to_save)
+            chatroom[socket.chatroomName].messages.shift(); //delete oldest message
+        chatroom[socket.chatroomName].messages.push({ msg: message, user: socket.username });
+        io.emit('chat message', { msg: message, user: socket.username }, socket.chatroomName);
     });
 
     // Disconnect
@@ -54,31 +64,54 @@ io.sockets.on('connection', function (socket) {
         if (socket.username) {
             userOffline();
             users.splice(users.indexOf(socket.username), 1);
-            updateUserList();
+
+            users.splice(indexOfUser(users, socket.username, socket.chatroomName), 1);
+            chatroom[socket.chatroomName].users.splice(indexOfUser(chatroom[socket.chatroomName].users, socket.username, socket.chatroomName), 1);
+            updateUserList(socket.chatroomName);
         };
         connections.splice(connections.indexOf(socket), 1);
         console.log('%s users online', connections.length);
     });
 
+    function indexOfUser(myArray, usName, crName) {
+        for (var i = 0, len = myArray.length; i < len; i++) {
+            if (myArray[i]['username'] === usName && myArray[i]['chatroom'] === crName) return i;
+        }
+        return -1;
+    }
+
     // Update the user list whenever a user connects or disconnects
-    function updateUserList() {
-        users.sort();
-        io.emit('get users', users);
+    function updateUserList(crName) {
+        //users.sort();
+        //io.emit('get users', users);
+        chatroom[crName].users.sort();
+        io.emit('get users', chatroom[crName].users, crName);
     };
 
     // Update the messages to get list of old messages
-    function reloadOldMessages() {
-        socket.emit('get messages', messages);
+    function reloadOldMessages(crName) {
+        socket.emit('get messages', chatroom[crName].messages, crName);
     };
 
     // Broadcast new user online message
     function userOnline() {
-        socket.broadcast.emit('online message', { user: socket.username });
+        socket.broadcast.emit('online message', { user: socket.username }, socket.chatroomName);
     }
 
     // Broadcast user offline message
     function userOffline() {
-        socket.broadcast.emit('offline message', { user: socket.username });
+        socket.broadcast.emit('offline message', { user: socket.username }, socket.chatroomName);
+    }
+
+    function createChatroom(name) {
+        if (name == "")
+            name = "__default";
+        if (!(name in chatroom))
+            chatroom[name] = {
+                messages: [],
+                users: []
+            };
+        return name;
     }
 });
 

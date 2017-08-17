@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <title>ChatColate</title>
@@ -18,9 +18,15 @@
             <div class="row" id="login_section" style="margin-top: 30vh;">
                 <div class="col-sm-4 col-sm-offset-4 well text-center">
                     <form id="login_form">
-                        <h3>Please enter your username</h3>
-                        <input type="text" id="username">
-                        <input type="submit" value="Enter">
+                        <div>
+                            <h3>Please enter your username</h3>
+                            <input type="text" id="username">
+                            <input type="submit" value="Enter">
+                        </div>
+                        <div>
+                            <h3>Chatroom: </h3>
+                            <input type="text" id="chatroomName">
+                        </div>
                     </form>
                 </div>
             </div>
@@ -29,7 +35,7 @@
             <div class="row" id="chat_section" style="margin-top: 20vh; display: none;">
                 <div class="col-sm-9">
                     <div class="panel panel-info" id="chat_panel">
-                        <div class="panel-heading"><span class="glyphicon glyphicon-comment">&nbsp</span>Chatroom</div>
+                        <div class="panel-heading"><span class="glyphicon glyphicon-comment">&nbsp</span><span id="chatroomHeader">Chatroom</span></div>
                         <div class="panel-body" id="message_board" style="height: 400px; overflow-y: scroll;">
                             <div id="messages"></div>
                         </div>
